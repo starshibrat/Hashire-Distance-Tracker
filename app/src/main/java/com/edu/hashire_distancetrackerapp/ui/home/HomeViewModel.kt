@@ -3,6 +3,7 @@ package com.edu.hashire_distancetrackerapp.ui.home
 import android.app.Application
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -17,6 +18,12 @@ import androidx.work.WorkManager
 import com.edu.hashire_distancetrackerapp.data.Run
 import com.edu.hashire_distancetrackerapp.service.MyLocationService
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 import kotlin.math.PI
 import kotlin.math.asin
@@ -25,7 +32,7 @@ import kotlin.math.sqrt
 
 class HomeViewModel(
     private val application: Application
-) : ViewModel() {
+) : ViewModel(){
     var homeUiState by mutableStateOf(RunUiState())
         private set
 
@@ -84,19 +91,10 @@ class HomeViewModel(
                     val latValue = progress.getDouble("Latitude", 0.0)
                     var dist = 0.0
                     Log.d("HomeViewModel", "startRun: index: $index")
-//                    if (coordinates.isEmpty() || coordinates[index - 1] != Pair(longValue, latValue)) {
-//
-//                        val lonRad = PI/180 * longValue
-//                        val latRad = PI/180 * latValue
-//
-//                        val x = 6371 * cos(latRad) * cos(lonRad)
-//                        val y = 6371 * cos(latRad) * sin(lonRad)
-//
-//                        Log.d("HomeViewModel", "startRun: add ($x, $y) to list")
-//
-//                        coordinates.add(Pair(x, y))
-//                        index += 1
-//                    }
+                    if (coordinates.isEmpty() || coordinates[index - 1] != Pair(longValue, latValue)) {
+                        coordinates.add(Pair(longValue, latValue))
+                        index += 1
+                    }
 
                     Log.d("HomeViewModel", "startRun: longValue: $longValue, latValue: $latValue")
 
@@ -150,16 +148,23 @@ class HomeViewModel(
         val diffTime = System.currentTimeMillis() - startTime
         val speed = this.homeUiState.runDetails.distance / diffTime * 3_600_000
 
+        val now = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Date.from(LocalDateTime.now().toInstant(ZoneOffset.UTC))
+        } else {
+            Date()
+        }
+
         val run = RunDetails(
             id = homeUiState.runDetails.id,
             title = homeUiState.runDetails.title,
             description = homeUiState.runDetails.description,
             speed = speed,
-            distance = homeUiState.runDetails.distance
-
-
+            distance = homeUiState.runDetails.distance,
+            time = diffTime,
+            createdAt = now,
         )
         Log.d("HomeViewModel", "stopRun: diffTime: $diffTime")
+        Log.d("HomeViewModel", "stopRun: time: $now")
 
         updateRunUiState(runDetails = run)
 
@@ -196,7 +201,9 @@ data class RunDetails(
     val title: String = "",
     val distance: Double = 0.0,
     val description: String = "",
-    val speed: Double = 0.0
+    val speed: Double = 0.0,
+    val time: Long = 0,
+    val createdAt: Date = Date()
 )
 
 fun RunDetails.toRun(): Run = Run(
@@ -204,7 +211,9 @@ fun RunDetails.toRun(): Run = Run(
     title = title,
     distance = distance,
     description = description,
-    speed = speed
+    speed = speed,
+    time = time,
+    createdAt = createdAt
 )
 
 fun Run.toRunDetails(): RunDetails = RunDetails(
@@ -212,7 +221,9 @@ fun Run.toRunDetails(): RunDetails = RunDetails(
     title = title,
     distance = distance,
     description = description,
-    speed = speed
+    speed = speed,
+    time = time,
+    createdAt = createdAt
 )
 
 fun Run.toRunUiState(): RunUiState = RunUiState(

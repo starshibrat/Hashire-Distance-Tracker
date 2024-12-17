@@ -49,11 +49,16 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import java.text.SimpleDateFormat
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 object HomeDestination : NavigationDestination {
     override val route = "home"
@@ -187,6 +192,7 @@ private fun HomeBody(
         if (isDone) {
             Text(text = "=====RESULT=====")
             Text(text = "Speed: ${run.runDetails.speed} kph")
+            Text(text = run.runDetails.time.milliseconds.toComponents {hours, minutes, seconds, _ ->"%02d:%02d:%02d".format(hours, minutes, seconds)})
 
         }
         

@@ -31,7 +31,7 @@ import java.util.UUID
 class MyLocationService : Service() {
     private val priority = Priority.PRIORITY_HIGH_ACCURACY
     private val locationRequest by lazy {
-        LocationRequest.Builder(priority, 1000).setIntervalMillis(3000).build()
+        LocationRequest.Builder(priority, 3000).setIntervalMillis(6000).build()
     }
     private lateinit var fusedLocationProviderClient : FusedLocationProviderClient
     private lateinit var prevLocation : Location
