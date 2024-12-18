@@ -63,6 +63,8 @@ dependencies {
 
     implementation("androidx.work:work-runtime:$work_version")
 
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+
 
     // Java language implementation
     implementation("androidx.fragment:fragment:$fragment_version")

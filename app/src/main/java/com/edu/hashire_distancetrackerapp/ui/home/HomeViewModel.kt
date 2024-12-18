@@ -92,7 +92,7 @@ class HomeViewModel(
                     var dist = 0.0
                     Log.d("HomeViewModel", "startRun: index: $index")
                     if (coordinates.isEmpty() || coordinates[index - 1] != Pair(longValue, latValue)) {
-                        coordinates.add(Pair(longValue, latValue))
+                        coordinates.add(Pair(latValue, longValue))
                         index += 1
                     }
 

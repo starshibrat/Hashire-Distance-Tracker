@@ -9,12 +9,17 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -40,6 +45,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
 import com.edu.hashire_distancetrackerapp.R
 import com.edu.hashire_distancetrackerapp.ui.navigation.NavigationDestination
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -49,6 +56,11 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polyline
 import java.text.SimpleDateFormat
 import kotlin.math.PI
 import kotlin.math.abs
@@ -108,6 +120,7 @@ fun HomeScreen(
                 onRun = viewModel::startRun,
                 onStop = viewModel::stopRun,
                 location = viewModel.locationUiState,
+                coordinates = viewModel.coordinates,
                 contentPadding = innerPadding,
                 )
 
@@ -137,6 +150,7 @@ private fun HomeBody(
     location: LocationDetails,
     onRun: (Context) -> Unit,
     onStop: (Context) -> Unit,
+    coordinates: List<Pair<Double, Double>>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 
@@ -149,7 +163,19 @@ private fun HomeBody(
         mutableStateOf(false)
     }
 
+    var showRoute by remember {
+        mutableStateOf(false)
+    }
+
     val backgroundLocationPermissionState = rememberPermissionState(permission = Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+
+//    val internetPermissionState = rememberPermissionState(permission = Manifest.permission.INTERNET)
+//    val accessNetworkPermissionState = rememberPermissionState(permission = Manifest.permission.ACCESS_NETWORK_STATE)
+
+    val mapPermissionState = rememberMultiplePermissionsState(permissions = listOf(
+        Manifest.permission.INTERNET,
+        Manifest.permission.ACCESS_NETWORK_STATE
+    ))
 
     val ctx = LocalContext.current
 
@@ -193,12 +219,112 @@ private fun HomeBody(
             Text(text = "=====RESULT=====")
             Text(text = "Speed: ${run.runDetails.speed} kph")
             Text(text = run.runDetails.time.milliseconds.toComponents {hours, minutes, seconds, _ ->"%02d:%02d:%02d".format(hours, minutes, seconds)})
+            Button(onClick = {
+                showRoute = !showRoute
+            }) {
+                if (!showRoute){
+                    Text(text = "Show Route")
+                } else {
+                    Text(text = "Close Route")
+                }
+                
+
+            }
+
+            if (mapPermissionState.allPermissionsGranted && showRoute) {
+                OpenMapDialog(coordinates = coordinates, onDismiss = {showRoute = !showRoute})
+            }
 
         }
         
     }
     
 }
+
+val dummyCoordinates = listOf(
+    Pair(38.8986, -77.0365), // Point 1
+    Pair(38.8985, -77.0359), // Point 2
+    Pair(38.8983, -77.0354), // Point 3
+    Pair(38.8980, -77.0349), // Point 4
+    Pair(38.8977, -77.0345), // Point 5
+    Pair(38.8973, -77.0343), // Point 6
+    Pair(38.8969, -77.0345), // Point 7
+    Pair(38.8965, -77.0349), // Point 8
+    Pair(38.8962, -77.0354), // Point 9
+    Pair(38.8960, -77.0359), // Point 10
+    Pair(38.8960, -77.0365), // Point 11
+    Pair(38.8962, -77.0370), // Point 12
+    Pair(38.8965, -77.0375), // Point 13
+    Pair(38.8969, -77.0378), // Point 14
+    Pair(38.8973, -77.0380), // Point 15
+    Pair(38.8977, -77.0382), // Point 16
+    Pair(38.8980, -77.0380), // Point 17
+    Pair(38.8983, -77.0378), // Point 18
+    Pair(38.8985, -77.0375), // Point 19
+    Pair(38.8986, -77.0370)  // Point 20 (Back near the start)
+
+)
+
+@Composable
+private fun OpenMapDialog(
+    coordinates: List<Pair<Double, Double>>,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Box (
+            modifier = Modifier.fillMaxSize()
+        ){
+            MapBody(coordinates = coordinates)
+            Button(onClick = onDismiss) {
+                Text(text = "Close")
+                
+            }
+        }
+
+    }
+}
+
+@Composable
+private fun MapBody(coordinates: List<Pair<Double, Double>> = dummyCoordinates) {
+    Column {
+        AndroidView(
+            modifier = Modifier.wrapContentSize(),
+            factory = {
+                    context ->
+                MapView(context).apply {
+                    setTileSource(TileSourceFactory.USGS_TOPO)
+                    setMultiTouchControls(true)
+                    setZoomLevel(14.9)
+                    setOnClickListener {
+
+                    }
+
+                    coordinates.forEach {
+                        val point = GeoPoint(it.first, it.second)
+                        val marker = Marker(this)
+
+                        marker.position = point
+                        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                        marker.title = "(${point.latitude}, ${point.longitude})"
+                        overlays.add(marker)
+
+
+                    }
+
+                    invalidate()
+                }
+            },
+            update = {
+                    view -> view.controller.setCenter(GeoPoint(coordinates[0].first, coordinates[0].second))
+            }
+        )
+
+    }
+
+    
+}
+
+
 
 @Composable
 private fun RouteView(
