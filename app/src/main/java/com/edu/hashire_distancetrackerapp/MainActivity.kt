@@ -19,6 +19,8 @@ import androidx.work.WorkManager
 import com.edu.hashire_distancetrackerapp.service.MyLocationService
 import com.edu.hashire_distancetrackerapp.ui.home.HomeViewModel
 import com.edu.hashire_distancetrackerapp.ui.theme.HashireDistanceTrackerAppTheme
+import org.osmdroid.library.BuildConfig
+import java.io.File
 
 const val TAG = "MainActivity"
 
@@ -26,7 +28,12 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        val osmConf = org.osmdroid.config.Configuration.getInstance()
+        val basePath = File(cacheDir.absolutePath, "osmdroid")
+        osmConf.osmdroidBasePath = basePath
+        val tileCache = File(osmConf.osmdroidBasePath.absolutePath, "tile")
+        osmConf.osmdroidTileCache = tileCache
+        osmConf.userAgentValue = BuildConfig.LIBRARY_PACKAGE_NAME
         enableEdgeToEdge()
 
         setContent {

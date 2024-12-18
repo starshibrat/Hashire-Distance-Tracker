@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -275,10 +276,19 @@ private fun OpenMapDialog(
             modifier = Modifier.fillMaxSize()
         ){
             MapBody(coordinates = coordinates)
-            Button(onClick = onDismiss) {
-                Text(text = "Close")
-                
+
+            Row (
+                horizontalArrangement = Arrangement.End
+            )
+            {
+                Button(onClick = onDismiss) {
+                    Text(text = "Close")
+
+                }
+                Text(text = "© OpenStreetMap contributors")
             }
+
+
         }
 
     }
@@ -292,9 +302,9 @@ private fun MapBody(coordinates: List<Pair<Double, Double>> = dummyCoordinates) 
             factory = {
                     context ->
                 MapView(context).apply {
-                    setTileSource(TileSourceFactory.USGS_TOPO)
+                    setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
-                    setZoomLevel(14.9)
+                    setZoomLevel(19.1)
                     setOnClickListener {
 
                     }
