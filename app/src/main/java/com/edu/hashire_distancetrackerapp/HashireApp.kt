@@ -2,6 +2,7 @@ package com.edu.hashire_distancetrackerapp
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.twotone.PlayArrow
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +29,9 @@ fun HashireTopAppBar(
     title: String,
     canNavigateBack: Boolean,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    navigateUp: () -> Unit = {}
+    navigateUp: () -> Unit = {},
+    inHistoryPage: Boolean = false,
+    navigateToHistory: () -> Unit = {},
 ) {
 
     CenterAlignedTopAppBar(
@@ -43,7 +46,18 @@ fun HashireTopAppBar(
 
                 }
             }
+        },
+        actions = {
+            if (!inHistoryPage) {
+                IconButton(
+                    onClick = navigateToHistory) {
+                    Icon(
+                        imageVector = Icons.TwoTone.PlayArrow, contentDescription = "Run History")
+                    
+                }
+            }
         }
+
         )
 
 }

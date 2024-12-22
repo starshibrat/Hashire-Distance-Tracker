@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.edu.hashire_distancetrackerapp.HashireApplication
 import com.edu.hashire_distancetrackerapp.ui.home.HomeViewModel
+import com.edu.hashire_distancetrackerapp.ui.run.RunHistoryViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -14,6 +15,14 @@ object AppViewModelProvider {
                 hashireApplication()
             )
         }
+
+        initializer {
+            RunHistoryViewModel(
+                hashireApplication().container.runsRepository
+            )
+        }
+
+
     }
 }
 

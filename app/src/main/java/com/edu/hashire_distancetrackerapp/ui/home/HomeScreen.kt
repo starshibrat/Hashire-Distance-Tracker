@@ -84,6 +84,7 @@ object HomeDestination : NavigationDestination {
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    navigateToHistory: () -> Unit = {},
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 
 ){
@@ -112,7 +113,9 @@ fun HomeScreen(
         topBar = {HashireTopAppBar(
             title = stringResource(id = HomeDestination.titleRes),
             canNavigateBack = false,
-            scrollBehavior = scrollBehavior)},
+            scrollBehavior = scrollBehavior,
+            navigateToHistory = navigateToHistory
+            )},
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         if (locationPermissionsState.allPermissionsGranted || !allPermissionsRevoked) {
