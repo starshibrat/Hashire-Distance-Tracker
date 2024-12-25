@@ -54,6 +54,7 @@ fun RunHistoryScreen(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             HashireTopAppBar(
+                modifier = modifier,
                 title = stringResource(id = RunHistoryDestination.titleRes),
                 canNavigateBack = true,
                 scrollBehavior = scrollBehavior,

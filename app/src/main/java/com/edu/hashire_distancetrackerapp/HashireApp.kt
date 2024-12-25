@@ -1,5 +1,6 @@
 package com.edu.hashire_distancetrackerapp
 
+import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.twotone.PlayArrow
@@ -10,6 +11,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.edu.hashire_distancetrackerapp.ui.navigation.HashireNavHost
@@ -26,6 +29,7 @@ fun HashireApp(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HashireTopAppBar(
+    modifier: Modifier,
     title: String,
     canNavigateBack: Boolean,
     scrollBehavior: TopAppBarScrollBehavior? = null,
@@ -35,6 +39,7 @@ fun HashireTopAppBar(
 ) {
 
     CenterAlignedTopAppBar(
+        modifier = modifier,
         title = { Text(text = title)},
         scrollBehavior = scrollBehavior,
         navigationIcon = {

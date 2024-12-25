@@ -8,9 +8,11 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+//import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,9 +23,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -34,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
@@ -45,7 +50,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import com.edu.hashire_distancetrackerapp.R
@@ -87,35 +96,40 @@ fun HomeScreen(
     navigateToHistory: () -> Unit = {},
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 
-){
+    ) {
 
-    val locationPermissionsState = rememberMultiplePermissionsState(permissions =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    val locationPermissionsState = rememberMultiplePermissionsState(
+        permissions =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             listOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.POST_NOTIFICATIONS
             )
         } else {
-        listOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ) }
+            listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            )
+        }
     )
 
 
-
-    val allPermissionsRevoked = locationPermissionsState.permissions.size == locationPermissionsState.revokedPermissions.size
+    val allPermissionsRevoked =
+        locationPermissionsState.permissions.size == locationPermissionsState.revokedPermissions.size
 
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    Scaffold (
-        topBar = {HashireTopAppBar(
-            title = stringResource(id = HomeDestination.titleRes),
-            canNavigateBack = false,
-            scrollBehavior = scrollBehavior,
-            navigateToHistory = navigateToHistory
-            )},
+    Scaffold(
+        topBar = {
+            HashireTopAppBar(
+                modifier = modifier.background(color = Color.LightGray),
+                title = stringResource(id = HomeDestination.titleRes),
+                canNavigateBack = false,
+                scrollBehavior = scrollBehavior,
+                navigateToHistory = navigateToHistory
+            )
+        },
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         if (locationPermissionsState.allPermissionsGranted || !allPermissionsRevoked) {
@@ -126,7 +140,7 @@ fun HomeScreen(
                 location = viewModel.locationUiState,
                 coordinates = viewModel.coordinates,
                 contentPadding = innerPadding,
-                )
+            )
 
         } else {
             Column(
@@ -136,13 +150,13 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(150.dp))
                 Text(text = "Allow all permissions to use the application service.")
                 Button(onClick = {
-                    locationPermissionsState.launchMultiplePermissionRequest() }) {
+                    locationPermissionsState.launchMultiplePermissionRequest()
+                }) {
                     Text("Request Permissions")
                 }
             }
         }
     }
-
 
 
 }
@@ -159,7 +173,7 @@ private fun HomeBody(
     contentPadding: PaddingValues = PaddingValues(0.dp),
 
     ) {
-    var btnText by remember {mutableStateOf("Start")}
+    var btnText by remember { mutableStateOf("Start") }
     var isStarted by remember {
         mutableStateOf(false)
     }
@@ -171,78 +185,164 @@ private fun HomeBody(
         mutableStateOf(false)
     }
 
-    val backgroundLocationPermissionState = rememberPermissionState(permission = Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+    val backgroundLocationPermissionState =
+        rememberPermissionState(permission = Manifest.permission.ACCESS_BACKGROUND_LOCATION)
 
 //    val internetPermissionState = rememberPermissionState(permission = Manifest.permission.INTERNET)
 //    val accessNetworkPermissionState = rememberPermissionState(permission = Manifest.permission.ACCESS_NETWORK_STATE)
 
-    val mapPermissionState = rememberMultiplePermissionsState(permissions = listOf(
-        Manifest.permission.INTERNET,
-        Manifest.permission.ACCESS_NETWORK_STATE
-    ))
+    val mapPermissionState = rememberMultiplePermissionsState(
+        permissions = listOf(
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACCESS_NETWORK_STATE
+        )
+    )
 
     val ctx = LocalContext.current
 
     println(run.runDetails)
-    
-    Column (
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(contentPadding)
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+//            .padding(12.dp, 30.dp, 12.dp, 12.dp)
+//            .background(shape = RoundedCornerShape(10.dp))
     ) {
-        Text(text = "Latitude: ${location.latitude}")
-        Text(text = "Longitude: ${location.longitude}")
-        Text(text = "Distance: ${run.runDetails.distance} km")
+        Box (
+            modifier = modifier.padding(20.dp)
+//            modifier = modifier.clip(RoundedCornerShape(12.dp)).background(Color.Gray).padding(12.dp)
+        ){
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier
+                    .padding(contentPadding)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.DarkGray)
 
-        Button(onClick = {
+            ) {
+                Box (
+                    modifier = modifier
+                        .background(Color.Gray)
+                        .padding(start = 14.dp, top = 8.dp, end = 14.dp, bottom = 12.dp)
+                ){
+                    Column (
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        Row(
+                            modifier = modifier
+                                .fillMaxWidth(),
+                            Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Latitude:",
+                            )
+                            Text(
+                                "${location.latitude}",
+                            )
+                        }
+                        Row (
+                            modifier = modifier.fillMaxWidth(),
+                            Arrangement.SpaceBetween
+                        ){
+                            Text(text = "Longitude: ")
+                            Text("${location.longitude}")
+                        }
+                        Row (
+                            modifier.fillMaxWidth(),
+                            Arrangement.SpaceBetween
+                        ){
+                            Text(text = "Distance: ")
+                            Text("${run.runDetails.distance} Km")
+                        }
 
-            if (isStarted) {
-                btnText = "Start"
-                isStarted = false
-                onStop(ctx)
-                isDone = true
+                        Button(onClick = {
+                            if (isStarted) {
+                                btnText = "Start"
+                                isStarted = false
+                                onStop(ctx)
+                                isDone = true
 
-            } else {
-                btnText = "Stop"
-                isStarted = true
-                isDone = false
+                            } else {
+                                btnText = "Stop"
+                                isStarted = true
+                                isDone = false
 
-                if (!backgroundLocationPermissionState.status.isGranted) {
-                    backgroundLocationPermissionState.launchPermissionRequest()
+                                if (!backgroundLocationPermissionState.status.isGranted) {
+                                    backgroundLocationPermissionState.launchPermissionRequest()
+                                }
+
+                                onRun(ctx)
+
+                            }
+
+                        }
+                        ) {
+                            Text(text = btnText)
+                        }
+                    }
                 }
 
-                onRun(ctx)
+                if (isDone) {
+                    Box (
+                        modifier
+                            .background(Color.DarkGray)
+                            .fillMaxWidth()
+                            .padding(15.dp),
+                        Alignment.Center
+                    ){
+                        Text(text = "RESULT",style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 25.sp,), color = Color.White)
+                    }
+                    Box (
+                        modifier.padding(12.dp)
+                    ){
+                        Column {
+                            Row(
+                                modifier.fillMaxWidth(),
+                                Arrangement.SpaceBetween
+                            ) {
+                                Text(text = "Speed: ")
+                                Text("${run.runDetails.speed} km/h")
+                            }
+                            Row(
+                                modifier.fillMaxWidth(),
+                                Arrangement.SpaceBetween
+                            ) {
+                                Text("Time :")
+                                Text(text = run.runDetails.time.milliseconds.toComponents { hours, minutes, seconds, _ ->
+                                    "%02d:%02d:%02d".format(
+                                        hours,
+                                        minutes,
+                                        seconds
+                                    )
+                                })
+                            }
+                        }
+                    }
+                    Button(onClick = {
+                        showRoute = !showRoute
+                    }) {
+                        if (!showRoute) {
+                            Text(text = "Show Route")
+                        } else {
+                            Text(text = "Close Route")
+                        }
 
-            }
 
-        }
-        ) {
-            Text(text = btnText)
-        }
-        
-        if (isDone) {
-            Text(text = "=====RESULT=====")
-            Text(text = "Speed: ${run.runDetails.speed} kph")
-            Text(text = run.runDetails.time.milliseconds.toComponents {hours, minutes, seconds, _ ->"%02d:%02d:%02d".format(hours, minutes, seconds)})
-            Button(onClick = {
-                showRoute = !showRoute
-            }) {
-                if (!showRoute){
-                    Text(text = "Show Route")
-                } else {
-                    Text(text = "Close Route")
+                    }
+
+                    if (mapPermissionState.allPermissionsGranted && showRoute) {
+                        OpenMapDialog(
+                            coordinates = coordinates,
+                            onDismiss = { showRoute = !showRoute })
+                    }
+
                 }
-                
 
             }
-
-            if (mapPermissionState.allPermissionsGranted && showRoute) {
-                OpenMapDialog(coordinates = coordinates, onDismiss = {showRoute = !showRoute})
-            }
-
         }
-        
     }
-    
+
 }
 
 val dummyCoordinates = listOf(
@@ -275,12 +375,12 @@ private fun OpenMapDialog(
     onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
-        Box (
+        Box(
             modifier = Modifier.fillMaxSize()
-        ){
+        ) {
             MapBody(coordinates = coordinates)
 
-            Row (
+            Row(
                 horizontalArrangement = Arrangement.End
             )
             {
@@ -302,8 +402,7 @@ private fun MapBody(coordinates: List<Pair<Double, Double>> = dummyCoordinates) 
     Column {
         AndroidView(
             modifier = Modifier.wrapContentSize(),
-            factory = {
-                    context ->
+            factory = { context ->
                 MapView(context).apply {
                     setTileSource(TileSourceFactory.MAPNIK)
                     setMultiTouchControls(true)
@@ -327,16 +426,15 @@ private fun MapBody(coordinates: List<Pair<Double, Double>> = dummyCoordinates) 
                     invalidate()
                 }
             },
-            update = {
-                    view -> view.controller.setCenter(GeoPoint(coordinates[0].first, coordinates[0].second))
+            update = { view ->
+                view.controller.setCenter(GeoPoint(coordinates[0].first, coordinates[0].second))
             }
         )
 
     }
 
-    
-}
 
+}
 
 
 @Composable
@@ -349,10 +447,12 @@ private fun RouteView(
 
     val len = coordinates.size
 
-    Canvas(modifier = modifier
-        .fillMaxSize()
-        .background(color = Color.LightGray)
-        .padding(15.dp)) {
+    Canvas(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color = Color.LightGray)
+            .padding(15.dp)
+    ) {
         val canvasWidth = size.width
         val canvasHeight = size.height
         val xMax = coordinates.maxBy { it.first }.first
@@ -374,12 +474,12 @@ private fun RouteView(
 
         val scaleFactor = min(scaleX, scaleY)
 
-        val xOffset = (canvasWidth - (xMax - xMin) * scaleFactor)/2
-        val yOffset = (canvasHeight - (yMax - yMin) * scaleFactor)/2
+        val xOffset = (canvasWidth - (xMax - xMin) * scaleFactor) / 2
+        val yOffset = (canvasHeight - (yMax - yMin) * scaleFactor) / 2
 
         Log.d("RouteView:", "MaxMin: $xMax $xMin $yMax $yMin")
 
-        val pt = Path().apply{
+        val pt = Path().apply {
             coordinates.forEachIndexed { index, it ->
                 val x = (it.first - xMin) * scaleFactor + xOffset
                 val y = (it.second - yMin) * scaleFactor + yOffset
@@ -387,8 +487,15 @@ private fun RouteView(
                 val xf = x.toFloat()
                 val yf = y.toFloat()
 
-                if (Pair(it.first, it.second) == Pair(coordinates[0].first, coordinates[0].second) || Pair(it.first, it.second) == Pair(coordinates[len - 1].first, coordinates[len - 1].second)) {
-                    drawCircle(Color.Blue, radius = 5.dp.toPx(), center = Offset(x = xf, y= yf))
+                if (Pair(it.first, it.second) == Pair(
+                        coordinates[0].first,
+                        coordinates[0].second
+                    ) || Pair(it.first, it.second) == Pair(
+                        coordinates[len - 1].first,
+                        coordinates[len - 1].second
+                    )
+                ) {
+                    drawCircle(Color.Blue, radius = 5.dp.toPx(), center = Offset(x = xf, y = yf))
 
                 }
                 Log.d("RouteView:", "CoordinateDouble: ($x, $y)")
