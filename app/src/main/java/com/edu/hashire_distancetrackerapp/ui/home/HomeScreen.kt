@@ -319,16 +319,20 @@ private fun HomeBody(
                             }
                         }
                     }
-                    Button(onClick = {
-                        showRoute = !showRoute
-                    }) {
-                        if (!showRoute) {
-                            Text(text = "Show Route")
-                        } else {
-                            Text(text = "Close Route")
+                    Box (
+                        modifier.padding(bottom = 12.dp)
+                    ){
+                        Button(onClick = {
+                            showRoute = !showRoute
+                        }) {
+                            if (!showRoute) {
+                                Text(text = "Show Route")
+                            } else {
+                                Text(text = "Close Route")
+                            }
+
+
                         }
-
-
                     }
 
                     if (mapPermissionState.allPermissionsGranted && showRoute) {
