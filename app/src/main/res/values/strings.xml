@@ -3,4 +3,10 @@
     <string name="accuracy">5.0</string>
     <string name="history">Run History</string>
     <string name="no_run_history">There\'s nothing to look here. Start run now you lazy donkey!</string>
+    <string name="run_detail_title">Run Details</string>
+    <string name="run_title">Title</string>
+    <string name="run_distance">Distance</string>
+    <string name="run_date">Date</string>
+    <string name="run_speed">Speed</string>
+    <string name="run_time">Time</string>
 </resources>

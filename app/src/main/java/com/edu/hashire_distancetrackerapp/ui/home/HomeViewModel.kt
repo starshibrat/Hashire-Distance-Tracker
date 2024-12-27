@@ -1,5 +1,6 @@
 package com.edu.hashire_distancetrackerapp.ui.home
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.content.Intent
@@ -16,6 +17,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.edu.hashire_distancetrackerapp.data.Run
+import com.edu.hashire_distancetrackerapp.data.RunsRepository
 import com.edu.hashire_distancetrackerapp.service.MyLocationService
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -31,7 +33,8 @@ import kotlin.math.cos
 import kotlin.math.sqrt
 
 class HomeViewModel(
-    private val application: Application
+    private val application: Application,
+    private val runsRepository: RunsRepository,
 ) : ViewModel(){
     var homeUiState by mutableStateOf(RunUiState())
         private set
@@ -140,6 +143,7 @@ class HomeViewModel(
 
     }
 
+    @SuppressLint("SimpleDateFormat")
     fun stopRun(ctx: Context) {
         WorkManager.getInstance(ctx).cancelAllWork()
         application.stopService(intent)
@@ -156,7 +160,7 @@ class HomeViewModel(
 
         val run = RunDetails(
             id = homeUiState.runDetails.id,
-            title = homeUiState.runDetails.title,
+            title = "run ${SimpleDateFormat("dd-MM-yyyy").format(now)}",
             description = homeUiState.runDetails.description,
             speed = speed,
             distance = homeUiState.runDetails.distance,
@@ -183,6 +187,10 @@ class HomeViewModel(
         return 2 * radius * asin(sqrt(a))
 
 
+    }
+
+    suspend fun saveRun() {
+        runsRepository.insertRun(homeUiState.runDetails.toRun())
     }
 
 }

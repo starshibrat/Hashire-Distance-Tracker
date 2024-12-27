@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +67,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.launch
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -97,6 +99,9 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory),
 
     ) {
+
+
+    val coroutineScope = rememberCoroutineScope()
 
     val locationPermissionsState = rememberMultiplePermissionsState(
         permissions =
@@ -139,6 +144,11 @@ fun HomeScreen(
                 onStop = viewModel::stopRun,
                 location = viewModel.locationUiState,
                 coordinates = viewModel.coordinates,
+                onSave = {
+                    coroutineScope.launch {
+                        viewModel.saveRun()
+                    }
+                },
                 contentPadding = innerPadding,
             )
 
@@ -168,6 +178,7 @@ private fun HomeBody(
     location: LocationDetails,
     onRun: (Context) -> Unit,
     onStop: (Context) -> Unit,
+    onSave: () -> Unit,
     coordinates: List<Pair<Double, Double>>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
@@ -262,6 +273,7 @@ private fun HomeBody(
                                 isStarted = false
                                 onStop(ctx)
                                 isDone = true
+                                onSave()
 
                             } else {
                                 btnText = "Stop"
@@ -437,92 +449,5 @@ private fun MapBody(coordinates: List<Pair<Double, Double>> = dummyCoordinates) 
 
     }
 
-
-}
-
-
-@Composable
-private fun RouteView(
-    coordinates: List<Pair<Double, Double>>,
-    lineColor: Color = Color.Blue,
-    modifier: Modifier = Modifier
-) {
-    if (coordinates.isEmpty()) return
-
-    val len = coordinates.size
-
-    Canvas(
-        modifier = modifier
-            .fillMaxSize()
-            .background(color = Color.LightGray)
-            .padding(15.dp)
-    ) {
-        val canvasWidth = size.width
-        val canvasHeight = size.height
-        val xMax = coordinates.maxBy { it.first }.first
-        val xMin = coordinates.minBy { it.first }.first
-        val yMax = coordinates.maxBy { it.second }.second
-        val yMin = coordinates.minBy { it.second }.second
-
-        var scaleX = 0.0
-        var scaleY = 0.0
-
-        if (xMax != xMin) {
-            scaleX = canvasWidth / (xMax - xMin)
-        }
-
-        if (yMax != yMin) {
-            scaleY = canvasHeight / (yMax - yMin)
-        }
-
-
-        val scaleFactor = min(scaleX, scaleY)
-
-        val xOffset = (canvasWidth - (xMax - xMin) * scaleFactor) / 2
-        val yOffset = (canvasHeight - (yMax - yMin) * scaleFactor) / 2
-
-        Log.d("RouteView:", "MaxMin: $xMax $xMin $yMax $yMin")
-
-        val pt = Path().apply {
-            coordinates.forEachIndexed { index, it ->
-                val x = (it.first - xMin) * scaleFactor + xOffset
-                val y = (it.second - yMin) * scaleFactor + yOffset
-
-                val xf = x.toFloat()
-                val yf = y.toFloat()
-
-                if (Pair(it.first, it.second) == Pair(
-                        coordinates[0].first,
-                        coordinates[0].second
-                    ) || Pair(it.first, it.second) == Pair(
-                        coordinates[len - 1].first,
-                        coordinates[len - 1].second
-                    )
-                ) {
-                    drawCircle(Color.Blue, radius = 5.dp.toPx(), center = Offset(x = xf, y = yf))
-
-                }
-                Log.d("RouteView:", "CoordinateDouble: ($x, $y)")
-                Log.d("RouteView:", "CoordinateFloat: ($xf, $yf)")
-
-                if (index == 0) {
-                    moveTo(xf, yf)
-                } else {
-                    lineTo(xf, yf)
-                }
-
-            }
-        }
-
-//        pt.close()
-
-        Log.d("RouteView: ", "drawing path...")
-        drawPath(
-            path = pt,
-            color = Color.Blue,
-            style = Stroke(3.2f),
-        )
-
-    }
 
 }

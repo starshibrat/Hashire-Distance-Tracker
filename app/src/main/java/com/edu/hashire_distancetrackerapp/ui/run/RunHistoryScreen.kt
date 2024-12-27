@@ -44,6 +44,7 @@ object RunHistoryDestination : NavigationDestination {
 @Composable
 fun RunHistoryScreen(
     navigateBack: () -> Unit,
+    navigateToItemEntry: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RunHistoryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -68,6 +69,7 @@ fun RunHistoryScreen(
         RunHistoryBody(
             runList = historyUiState.runList,
             modifier = modifier.fillMaxSize(),
+            onRunClick = navigateToItemEntry,
             contentPadding = innerPadding,
             )
 
@@ -80,6 +82,7 @@ fun RunHistoryScreen(
 @Composable
 private fun RunHistoryBody(
     runList: List<Run>,
+    onRunClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
@@ -98,6 +101,7 @@ private fun RunHistoryBody(
         } else {
             RunList(
                 runList = runList,
+                onRunClick = {onRunClick(it.id)},
                 contentPadding = contentPadding,
                 modifier = Modifier.padding(
                     horizontal = 8.dp
@@ -111,6 +115,7 @@ private fun RunHistoryBody(
 @Composable
 private fun RunList(
     runList: List<Run>,
+    onRunClick: (Run) -> Unit,
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -125,7 +130,7 @@ private fun RunList(
                 item = item,
                 modifier = Modifier
                     .padding(8.dp)
-                    .clickable { },
+                    .clickable { onRunClick(item) },
 
                 )
         }
@@ -160,6 +165,12 @@ private fun RunItem(
                 Spacer(modifier = Modifier.weight(1f))
                 
             }
+            Text(
+                text = "Jarak: " + item.distance + " km",
+                style = MaterialTheme.typography.titleMedium
+
+            )
+            Spacer(Modifier.weight(1f))
             
         }
         
