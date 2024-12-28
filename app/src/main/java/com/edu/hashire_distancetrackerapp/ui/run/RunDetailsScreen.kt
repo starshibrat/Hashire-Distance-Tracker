@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.edu.hashire_distancetrackerapp.HashireTopAppBar
 import com.edu.hashire_distancetrackerapp.data.Run
 import com.edu.hashire_distancetrackerapp.ui.AppViewModelProvider
+import com.edu.hashire_distancetrackerapp.ui.home.OpenMapDialog
 import com.edu.hashire_distancetrackerapp.ui.home.RunDetails
 import com.edu.hashire_distancetrackerapp.ui.home.toRun
 import kotlinx.coroutines.launch
@@ -132,10 +134,28 @@ private fun RunDetailsBody(
             mutableStateOf(false)
         }
 
+        var showRoute by rememberSaveable {
+            mutableStateOf(false)
+        }
+
         RunDetails(
             run = runDetailsUiState.runDetails.toRun(),
             modifier = Modifier.fillMaxWidth()
         )
+
+        Button(onClick = {
+            showRoute = !showRoute
+        }) {
+            Text(text = "Show Route")
+        }
+
+        if (showRoute) {
+            OpenMapDialog(
+                coordinates = runDetailsUiState.runDetails.coordinates,
+                onDismiss = {
+                    showRoute = !showRoute
+                })
+        }
 
         OutlinedButton(onClick = {
             deleteConfirmationRequired = true

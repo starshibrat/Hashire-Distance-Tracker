@@ -386,7 +386,7 @@ val dummyCoordinates = listOf(
 )
 
 @Composable
-private fun OpenMapDialog(
+fun OpenMapDialog(
     coordinates: List<Pair<Double, Double>>,
     onDismiss: () -> Unit
 ) {

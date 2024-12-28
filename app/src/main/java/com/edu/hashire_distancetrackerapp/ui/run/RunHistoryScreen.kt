@@ -168,7 +168,7 @@ private fun RunItem(
                 
             }
             Text(
-                text = "Distance: " + String.format("%.2f", item.speed) + " km",
+                text = "Distance: " + String.format("%.2f", item.distance) + " km",
                 style = MaterialTheme.typography.titleMedium
 
             )

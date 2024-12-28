@@ -61,6 +61,8 @@ dependencies {
     val fragment_version = "1.8.5"
     val work_version = "2.9.1"
 
+    implementation("com.google.code.gson:gson:2.11.0")
+
     implementation("androidx.work:work-runtime:$work_version")
 
     implementation("org.osmdroid:osmdroid-android:6.1.20")

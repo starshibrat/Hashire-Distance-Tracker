@@ -166,6 +166,7 @@ class HomeViewModel(
             distance = homeUiState.runDetails.distance,
             time = diffTime,
             createdAt = now,
+            coordinates = coordinates
         )
         Log.d("HomeViewModel", "stopRun: diffTime: $diffTime")
         Log.d("HomeViewModel", "stopRun: time: $now")
@@ -212,7 +213,8 @@ data class RunDetails(
     val description: String = "",
     val speed: Double = 0.0,
     val time: Long = 0,
-    val createdAt: Date = Date()
+    val createdAt: Date = Date(),
+    val coordinates: List<Pair<Double, Double>> = listOf()
 )
 
 fun RunDetails.toRun(): Run = Run(
@@ -222,7 +224,8 @@ fun RunDetails.toRun(): Run = Run(
     description = description,
     speed = speed,
     time = time,
-    createdAt = createdAt
+    createdAt = createdAt,
+    coordinates = coordinates
 )
 
 fun Run.toRunDetails(): RunDetails = RunDetails(
@@ -232,7 +235,8 @@ fun Run.toRunDetails(): RunDetails = RunDetails(
     description = description,
     speed = speed,
     time = time,
-    createdAt = createdAt
+    createdAt = createdAt,
+    coordinates = coordinates,
 )
 
 fun Run.toRunUiState(): RunUiState = RunUiState(
