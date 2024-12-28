@@ -9,4 +9,6 @@
     <string name="run_date">Date</string>
     <string name="run_speed">Speed</string>
     <string name="run_time">Time</string>
+    <string name="run_edit">Modify Run</string>
+    <string name="run_description">Description</string>
 </resources>

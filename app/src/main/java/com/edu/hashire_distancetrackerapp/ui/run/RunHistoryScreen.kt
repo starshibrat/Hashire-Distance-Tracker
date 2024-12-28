@@ -1,5 +1,6 @@
 package com.edu.hashire_distancetrackerapp.ui.run
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -141,6 +142,7 @@ private fun RunList(
 }
 
 
+@SuppressLint("DefaultLocale")
 @Composable
 private fun RunItem(
     item: Run,
@@ -166,7 +168,7 @@ private fun RunItem(
                 
             }
             Text(
-                text = "Jarak: " + item.distance + " km",
+                text = "Distance: " + String.format("%.2f", item.speed) + " km",
                 style = MaterialTheme.typography.titleMedium
 
             )

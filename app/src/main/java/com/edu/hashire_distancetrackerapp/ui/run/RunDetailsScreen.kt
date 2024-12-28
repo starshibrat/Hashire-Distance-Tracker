@@ -74,6 +74,7 @@ fun RunDetailsScreen(
                 title = stringResource(id = RunDetailsDestination.titleRes),
                 canNavigateBack = true,
                 navigateUp = navigateBack,
+                inHistoryPage = true,
                 modifier = Modifier
                 )
         },
@@ -184,21 +185,21 @@ fun RunDetails(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            RunDetailsRow(
+            RunDetailsColumn(
                 labelResID = R.string.run_title, runDetail = run.title,
                 modifier = Modifier.padding(
                     horizontal = 16.dp
                 )
             )
 
-            RunDetailsRow(
-                labelResID = R.string.run_distance, runDetail = "${run.distance} km",
+            RunDetailsColumn(
+                labelResID = R.string.run_distance, runDetail = "${String.format("%.2f", run.distance)} km",
                 modifier = Modifier.padding(
                     horizontal = 16.dp
                 )
             )
 
-            RunDetailsRow(
+            RunDetailsColumn(
                 labelResID = R.string.run_time, runDetail = run.time.milliseconds.toComponents { hours, minutes, seconds, _ ->
                     "%02d:%02d:%02d".format(
                         hours,
@@ -211,14 +212,22 @@ fun RunDetails(
                 )
             )
 
-            RunDetailsRow(
-                labelResID = R.string.run_speed, runDetail = "${String.format("%.3f", run.speed)} km/h",
+            RunDetailsColumn(
+                labelResID = R.string.run_speed, runDetail = "${String.format("%.2f", run.speed)} km/h",
                 modifier = Modifier.padding(
                     horizontal = 16.dp
                 )
             )
 
-            RunDetailsRow(
+            RunDetailsColumn(
+                labelResID = R.string.run_description,
+                runDetail = if (run.description.isNotBlank()) run.description else "-",
+                modifier = Modifier.padding(
+                    horizontal = 16.dp
+                )
+            )
+
+            RunDetailsColumn(
                 labelResID = R.string.run_date, runDetail = run.createdAt.toString(),
                 modifier = Modifier.padding(
                     horizontal = 16.dp
@@ -233,7 +242,7 @@ fun RunDetails(
 }
 
 @Composable
-private fun RunDetailsRow(
+private fun RunDetailsColumn(
     @StringRes labelResID: Int,
     runDetail: String,
     modifier: Modifier = Modifier

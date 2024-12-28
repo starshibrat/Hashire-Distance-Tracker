@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.edu.hashire_distancetrackerapp.HashireApplication
 import com.edu.hashire_distancetrackerapp.ui.home.HomeViewModel
 import com.edu.hashire_distancetrackerapp.ui.run.RunDetailsViewModel
+import com.edu.hashire_distancetrackerapp.ui.run.RunEditViewModel
 import com.edu.hashire_distancetrackerapp.ui.run.RunHistoryViewModel
 
 object AppViewModelProvider {
@@ -31,6 +32,14 @@ object AppViewModelProvider {
                 hashireApplication().container.runsRepository
             )
         }
+
+        initializer {
+            RunEditViewModel(
+                this.createSavedStateHandle(),
+                hashireApplication().container.runsRepository
+            )
+        }
+
 
 
     }

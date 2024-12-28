@@ -196,7 +196,8 @@ class HomeViewModel(
 }
 
 data class RunUiState(
-    val runDetails: RunDetails = RunDetails()
+    val runDetails: RunDetails = RunDetails(),
+    val isEntryValid: Boolean = false
 )
 
 data class LocationDetails(
