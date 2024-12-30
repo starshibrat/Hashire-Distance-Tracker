@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,6 +26,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
@@ -154,11 +157,12 @@ fun HomeScreen(
 
         } else {
             Column(
+                modifier.padding(15.dp).fillMaxWidth().fillMaxHeight(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Spacer(modifier = Modifier.height(150.dp))
-                Text(text = "Allow all permissions to use the application service.")
+//                Spacer(modifier = Modifier.height(150.dp))
+                Text(modifier=modifier.padding(15.dp),text = "Please allow all permissions to use the app services.", style = TextStyle(textAlign = TextAlign.Center,fontWeight = FontWeight.Bold, fontSize = 20.sp))
                 Button(onClick = {
                     locationPermissionsState.launchMultiplePermissionRequest()
                 }) {
@@ -246,28 +250,28 @@ private fun HomeBody(
                             Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = "Latitude:",
+                                modifier = modifier.padding(12.dp),text = "Latitude:",style = TextStyle(Color.White, fontSize = 20.sp)
                             )
                             Text(
-                                "${location.latitude}",
+                                modifier = modifier.padding(12.dp),text="${location.latitude}",style = TextStyle(Color.White, fontSize = 20.sp),
                             )
                         }
                         Row (
                             modifier = modifier.fillMaxWidth(),
                             Arrangement.SpaceBetween
                         ){
-                            Text(text = "Longitude: ")
-                            Text("${location.longitude}")
+                            Text(modifier = modifier.padding(12.dp),text = "Longitude: ",style = TextStyle(Color.White, fontSize = 20.sp))
+                            Text(modifier = modifier.padding(12.dp),text="${location.longitude}",style = TextStyle(Color.White, fontSize = 20.sp))
                         }
                         Row (
                             modifier.fillMaxWidth(),
                             Arrangement.SpaceBetween
                         ){
-                            Text(text = "Distance: ")
-                            Text("${run.runDetails.distance} Km")
+                            Text(modifier = modifier.padding(12.dp),text = "Distance: ",style = TextStyle(Color.White, fontSize = 20.sp))
+                            Text(modifier = modifier.padding(12.dp),text="${"%.2f".format(run.runDetails.distance)} Km",style = TextStyle(Color.White, fontSize = 20.sp))
                         }
 
-                        Button(onClick = {
+                        Button(colors = ButtonDefaults.buttonColors(containerColor = Color.Blue),onClick = {
                             if (isStarted) {
                                 btnText = "Start"
                                 isStarted = false
@@ -313,28 +317,28 @@ private fun HomeBody(
                                 modifier.fillMaxWidth(),
                                 Arrangement.SpaceBetween
                             ) {
-                                Text(text = "Speed: ")
-                                Text("${run.runDetails.speed} km/h")
+                                Text(modifier = modifier.padding(10.dp),text = "Speed: ", style = TextStyle(color = Color.White, fontSize = 18.sp))
+                                Text(modifier=modifier.padding(10.dp),text="${"%.2f".format(run.runDetails.speed)} km/h", style = TextStyle(color = Color.White, fontSize = 18.sp))
                             }
                             Row(
                                 modifier.fillMaxWidth(),
                                 Arrangement.SpaceBetween
                             ) {
-                                Text("Time :")
-                                Text(text = run.runDetails.time.milliseconds.toComponents { hours, minutes, seconds, _ ->
+                                Text(modifier=modifier.padding(10.dp),text="Time :", style = TextStyle(color = Color.White, fontSize = 18.sp))
+                                Text(modifier=modifier.padding(10.dp),text = run.runDetails.time.milliseconds.toComponents { hours, minutes, seconds, _ ->
                                     "%02d:%02d:%02d".format(
                                         hours,
                                         minutes,
                                         seconds
                                     )
-                                })
+                                }, style = TextStyle(color = Color.White, fontSize = 18.sp))
                             }
                         }
                     }
                     Box (
                         modifier.padding(bottom = 12.dp)
                     ){
-                        Button(onClick = {
+                        Button(colors=ButtonDefaults.buttonColors(Color.Blue),onClick = {
                             showRoute = !showRoute
                         }) {
                             if (!showRoute) {
