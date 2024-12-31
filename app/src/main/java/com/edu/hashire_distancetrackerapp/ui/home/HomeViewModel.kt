@@ -29,7 +29,9 @@ import java.util.Locale
 import java.util.UUID
 import kotlin.math.PI
 import kotlin.math.asin
+import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 class HomeViewModel(
@@ -72,7 +74,6 @@ class HomeViewModel(
         updateRunUiState(runDetails = RunDetails())
         updateLocationUiState(locationDetails = LocationDetails())
 
-        var first = true
         startTime = System.currentTimeMillis()
 
         application.startService(intent)
@@ -101,25 +102,11 @@ class HomeViewModel(
 
                     Log.d("HomeViewModel", "startRun: longValue: $longValue, latValue: $latValue")
 
-                    if (first) {
-
-                        latitude = latValue
-                        longitude = longValue
-                        first = false
-
-                    }
-
                     updateLocationUiState(LocationDetails(longitude = longValue, latitude = latValue))
                     Log.d("HomeViewModel", "startRun: change observed. Calculating the distance")
                     Log.d("HomeViewModel", "startRun: lat1: $latitude, long1: $longitude, lat2: $latValue, long2: $longValue")
 
-                    dist = if (latitude != 0.0 && longitude != 0.0 && latValue != 0.0 && longValue != 0.0) {
-                        getDistanceInKm(latitude, longitude, latValue, longValue)
-
-                    } else {
-                        0.0
-                    }
-
+                    dist = getDistance()
 
                     Log.d("HomeViewModel", "startRun: distance: $dist")
 
@@ -128,12 +115,14 @@ class HomeViewModel(
                         title = homeUiState.runDetails.title,
                         description = homeUiState.runDetails.description,
                         speed = homeUiState.runDetails.speed,
-                        distance = homeUiState.runDetails.distance + dist
+                        distance = dist
                     )
 
                     updateRunUiState(
                         run
                     )
+                    latitude = latValue
+                    longitude = longValue
 
 
                 }
@@ -186,6 +175,47 @@ class HomeViewModel(
         val a = 0.5 - cos((lat2-lat1) * p) / 2 + cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2
 
         return 2 * radius * asin(sqrt(a))
+
+    }
+    
+    private fun getDistance(coordinates: List<Pair<Double, Double>> = this.coordinates) : Double {
+
+        if (coordinates.size == 1) {
+            return 0.0
+        }
+
+        var c1 = Pair<Double, Double>(0.0, 0.0)
+        var dist = 0.0
+        var first = true
+
+        for (coordinate in coordinates) {
+
+            if (first) {
+                c1 = coordinate
+                first = false
+                continue
+            } else {
+                dist += haversine(c1.first, c1.second, coordinate.first, coordinate.second)
+                c1 = coordinate
+            }
+            
+        }
+
+        return dist
+    }
+
+    private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val R = 6371
+        val p1 = lat1 * Math.PI/180
+        val p2 = lat2 * Math.PI/180
+        val dp1 = (lat2 - lat1) * Math.PI/180
+        val dl = (lon2 - lon1) * Math.PI/180
+
+        val a = sin(dp1/2) * sin(dp1/2) + cos(p1) * cos(p1) * sin(dl/2) * sin(dl/2)
+
+        val c = 2 * atan2(sqrt(a), sqrt(1-a))
+
+        return R*c
 
 
     }
