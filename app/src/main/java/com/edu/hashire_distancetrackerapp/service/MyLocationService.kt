@@ -50,7 +50,12 @@ class MyLocationService : Service() {
                 startServiceOfForeground("Tracking the location.....\nAccuracy: $acc m")
 
                 if (first) {
-                    prevLocation = location.lastLocation!!
+                    if (location.lastLocation!!.accuracy <= 5.5) {
+                        prevLocation = location.lastLocation!!
+                        first = false
+                    } else {
+                        return
+                    }
                 } else {
                     log("prevLoc: $prevLocation")
                     log("curLoc: ${location.lastLocation}")
@@ -65,8 +70,6 @@ class MyLocationService : Service() {
                     }
 
                 }
-
-
 
                 log("location accepted.")
 
@@ -92,9 +95,6 @@ class MyLocationService : Service() {
                     ExistingWorkPolicy.REPLACE, workRequest)
 
                 prevLocation = location.lastLocation!!
-                first = false
-
-//                startServiceOfForeground(lat.toString(), long.toString())
 
             }
         }
@@ -115,6 +115,8 @@ class MyLocationService : Service() {
 
     private fun stopLocationUpdates() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+        first = false
+        fusedLocationProviderClient.flushLocations()
     }
 
 
