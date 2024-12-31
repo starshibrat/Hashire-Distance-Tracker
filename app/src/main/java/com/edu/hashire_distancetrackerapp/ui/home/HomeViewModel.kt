@@ -205,17 +205,17 @@ class HomeViewModel(
     }
 
     private fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val R = 6371
+        val earthRadius = 6371
         val p1 = lat1 * Math.PI/180
         val p2 = lat2 * Math.PI/180
         val dp1 = (lat2 - lat1) * Math.PI/180
         val dl = (lon2 - lon1) * Math.PI/180
 
-        val a = sin(dp1/2) * sin(dp1/2) + cos(p1) * cos(p1) * sin(dl/2) * sin(dl/2)
+        val a = sin(dp1/2) * sin(dp1/2) + cos(p1) * cos(p2) * sin(dl/2) * sin(dl/2)
 
         val c = 2 * atan2(sqrt(a), sqrt(1-a))
 
-        return R*c
+        return earthRadius*c
 
 
     }
